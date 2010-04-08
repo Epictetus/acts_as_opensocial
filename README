@@ -1,0 +1,14 @@
+ActsAsOpenSocial
+================
+fix helpers for opensocial
+only for mixi_mobile now
+
+Example
+=======
+class ApplicationController < ActionController::Base
+    opensocial_filter :mixi_mobile
+    opensocial_filter true (= :mixi_mobile)
+    opensocial_filter false (revert normal)
+end
+
+Copyright (c) 2010 masarakki <masaki@hisme.net>, released under the MIT license
