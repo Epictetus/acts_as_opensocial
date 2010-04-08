@@ -1,10 +1,10 @@
 class ActionController::Base
-  attr_accessor :__opensocial_type
+  @@__opensocial_type = false
   def self.opensocial_filter(type = true)
     @@__opensocial_type = type
   end
   
   def opensocial_type
-    @@__opensocial_type || false
+    @@__opensocial_type
   end
 end
