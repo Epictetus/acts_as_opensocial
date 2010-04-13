@@ -7,8 +7,13 @@ Example
 =======
 class ApplicationController < ActionController::Base
     opensocial_filter :mixi_mobile
-    opensocial_filter true (= :mixi_mobile)
-    opensocial_filter false (revert normal)
+    opensocial_filter true                  # = :mixi_mobile
+    opensocial_filter false                # revert normal
+
+    before_filter :set_opensocial_mode
+    def set_opensocial_mode
+         opensocial_filter true if RAILS_ENV == 'production'    # only for production environment
+    end
 end
 
 Copyright (c) 2010 masarakki <masaki@hisme.net>, released under the MIT license
