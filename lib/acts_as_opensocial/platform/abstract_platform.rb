@@ -51,6 +51,8 @@ module OpenSocial
           :xoauth_requestor_id => owner_id
         }
         
+        params[:oauth_token] = @auth["oauth_token"] unless batch_mode?
+        
         params[:oauth_signature] = CGI.escape(make_signature("http://#{api_host}#{url}", method, params.merge(opt)))
         
         params_str = params.sort_by{|k, v| k.to_s}.map{|key, value| "#{key}=\"#{value}\""}.join(",")
