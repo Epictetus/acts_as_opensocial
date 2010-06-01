@@ -34,7 +34,7 @@ module OpenSocial
         msg << CGI.escape(params.to_query)
         message = msg.join('&').chomp
         Base64.encode64(OpenSSL::HMAC::digest(OpenSSL::Digest::SHA1.new,
-                                              secret_key + '&', message)).chomp
+                                              consumer_secret + '&' + oauth_token_secret, message)).chomp
       end
       
       def send_request(path, owner_id, opt = {}, post_data = '')
@@ -74,6 +74,14 @@ module OpenSocial
       
       def prof(owner_id)
         send_request("/people/#{owner_id}/@self", owner_id)
+      end
+      
+      def oauth_token_secret
+        if !batch_mode? && @auth && @auth["oauth_token_secret"]
+          @auth["oauth_token_secret"]
+        else
+          ''
+        end
       end
       
       def verify_signature
