@@ -75,7 +75,10 @@ module OpenSocial
       end
       
       def prof(owner_id)
-        send_request("/people/#{owner_id}/@self", owner_id)
+        res = send_request("/people/#{owner_id}/@self", owner_id)
+        if res.code.to_i == 200
+          JSON.parse(res.body)["entry"]
+        end
       end
       
       def oauth_token_secret
