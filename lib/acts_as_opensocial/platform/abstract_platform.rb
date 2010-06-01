@@ -6,7 +6,7 @@ module OpenSocial
     class AbstractPlatform
       def initialize(controller = nil)
         if controller
-          @auth = controller.request.headers["Authorization"]
+          @auth = parse_auth(controller.request.headers["Authorization"])
           @owner_id = controller.params[:opensocial_owner_id]
         else
           @batch_mode = true
@@ -51,7 +51,7 @@ module OpenSocial
           :xoauth_requestor_id => owner_id
         }
         
-        params[:oauth_token] = @auth["oauth_token"] unless batch_mode?
+        params[:oauth_token] = @auth[:oauth_token] unless batch_mode?
         
         params[:oauth_signature] = CGI.escape(make_signature("http://#{api_host}#{url}", method, params.merge(opt)))
         
@@ -79,8 +79,8 @@ module OpenSocial
       end
       
       def oauth_token_secret
-        if !batch_mode? && @auth && @auth["oauth_token_secret"]
-          @auth["oauth_token_secret"]
+        if !batch_mode? && @auth && @auth[:oauth_token_secret]
+          @auth[:oauth_token_secret]
         else
           ''
         end
@@ -90,16 +90,25 @@ module OpenSocial
         unless batch_mode?
           sig = {}
           sig[:oauth_consumer_key] = consumer_key
-          sig[:oauth_nonce] = @auth["oauth_nonce"]
-          sig[:oauth_timestamp] = @auth["oauth_timestamp"]
-          sig[:oauth_token] = @auth["oauth_token"]
-          sig[:oauth_signature_method] = @auth["oauth_signature_method"]
-          sig[:oauth_version] = @auth["oauth_version"]
+          sig[:oauth_nonce] = @auth[:oauth_nonce]
+          sig[:oauth_timestamp] = @auth[:oauth_timestamp]
+          sig[:oauth_token] = @auth[:oauth_token]
+          sig[:oauth_signature_method] = @auth[:oauth_signature_method]
+          sig[:oauth_version] = @auth[:oauth_version]
           sig[:xoauth_requestor_id] = @owner_id
-          sig.to_query
-          signature = @auth["oauth_signature"]
-          oauth_token_secret = @auth["oauth_token_secret"]
+          #sig.to_query
+          #signature = @auth[:oauth_signature]
+          #oauth_token_secret = @auth[:oauth_token_secret]
         end
+      end
+      
+      def parse_auth(str)
+        res = {}
+        str.split(',').each do |p|
+          x = p.split('=')
+          res[x.first.strip.to_sym] = x.last.strip
+        end
+        res
       end
     end
   end
