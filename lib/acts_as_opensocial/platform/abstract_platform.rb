@@ -106,7 +106,7 @@ module OpenSocial
         res = {}
         str.split(',').each do |p|
           x = p.split('=')
-          res[x.first.strip.to_sym] = x.last.strip
+          res[x.first.strip.to_sym] = x.last.strip.gsub(/"/,'')
         end
         res
       end
