@@ -105,13 +105,15 @@ module OpenSocial
         end
       end
       
-      def parse_auth(str)
-        res = {}
-        str.split(',').each do |p|
-          x = p.split('=')
-          res[x.first.strip.to_sym] = x.last.strip.gsub(/"/,'')
+      def parse_auth(str = nil)
+        if str
+          res = {}
+          str.split(',').each do |p|
+            x = p.split('=')
+            res[x.first.strip.to_sym] = x.last.strip.gsub(/"/,'')
+          end
+          res
         end
-        res
       end
     end
   end
