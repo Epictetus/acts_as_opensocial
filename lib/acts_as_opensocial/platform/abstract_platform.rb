@@ -17,12 +17,11 @@ module OpenSocial
         @batch_mode || false
       end
       
-     
       def api_host ; end
       def api_endpoint ; end
       def consumer_key ; end
       def consumer_secret ; end
-
+      
       def make_signature(uri, method, params)
         require 'openssl'
         require 'base64'
@@ -41,7 +40,7 @@ module OpenSocial
         url = api_endpoint + path
         require 'digest/md5'
         
-        method = opt.delete(:method) || 'GET'
+        method = opt.delete(:method).to_s.upcase || 'GET'
         params = {
           :oauth_consumer_key => consumer_key,
           :oauth_nonce => Digest::MD5.hexdigest(rand.to_s),
@@ -58,18 +57,15 @@ module OpenSocial
         params_str = params.sort_by{|k, v| k.to_s}.map{|key, value| "#{key}=\"#{value}\""}.join(",")
         Net::HTTP.start(api_host, 80) do |http|
           url += '?' + opt.to_query if opt != {}
-          if method == 'POST'
-            req = Net::HTTP::Post.new(url)
-            req.content_type = 'application/json'
-            unless post_data.blank?
-              req.body = post_data
-              req.content_length = post_data.length
-            end
-          else
-            req = Net::HTTP::Get.new(url)
+          method_class = "Net::HTTP::#{method.downcase.camelize}".constantize
+          req = method_class.new(url)
+          req.content_type = 'application/json'
+          if post_data.present?
+            req.body = post_data
+            req.content_length = post_data.length
           end
-          req['Authorization'] = "OAuth #{params_str}"
-          req['User-Agent'] = 'ruby-net-http/ctrl-plus'
+          req['Authorization'] = "OAuth realm=\"\",#{params_str}"
+          req['User-Agent'] = 'ruby-net-http/acts_as_opensocial'
           res = http.request(req)
         end
       end
