@@ -40,7 +40,7 @@ module OpenSocial
         url = api_endpoint + path
         require 'digest/md5'
         
-        method = opt.delete(:method).to_s.upcase || 'GET'
+        method = (opt.delete(:method) || :get).to_s.upcase
         params = {
           :oauth_consumer_key => consumer_key,
           :oauth_nonce => Digest::MD5.hexdigest(rand.to_s),
