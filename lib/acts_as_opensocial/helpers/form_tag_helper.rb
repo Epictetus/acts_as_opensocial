@@ -2,7 +2,8 @@ module ActionView
   module Helpers
     module FormTagHelper      
       def form_tag_html(html_options)
-        extra_tags = extra_tags_for_form(html_options) 
+        extra_tags = ActiveSupport::SafeBuffer.new
+        extra_tags += extra_tags_for_form(html_options)
         case controller.opensocial_type
         when :mixi_mobile
           extra_tags += mixi_tags_for_form(html_options)
