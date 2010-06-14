@@ -17,4 +17,14 @@ class DummyPlatform < OpenSocial::Platform::AbstractPlatform
   def verify_signature
     true
   end
+  
+  def get_text(text_id)
+    text_id.map do |text_id|
+      {"textId" => text_id, "data" => text_id, "status" => 0}
+    end
+  end
+  
+  def create_text(text)
+    text
+  end
 end
