@@ -41,7 +41,7 @@ module OpenSocial
       end
     end
     
-    def fetch(opensocial, objects)
+    def self.fetch(opensocial, objects)
       objects = [objects] unless objects.is_a?(Array)
       list = objects.map{|object|
         object.class.text_id_list.map do |key|
