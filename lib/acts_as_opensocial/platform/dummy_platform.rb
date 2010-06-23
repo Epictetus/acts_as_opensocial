@@ -27,4 +27,16 @@ class DummyPlatform < OpenSocial::Platform::AbstractPlatform
   def create_text(text)
     text
   end
+  
+  def update_text(text_id, text)
+    text
+  end
+  
+  def delete_text(text_id)
+    ''
+  end
+  
+  def activity(message, url)
+    true
+  end
 end
