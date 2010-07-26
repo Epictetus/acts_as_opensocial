@@ -1,4 +1,5 @@
 require 'net/http'
+require 'net/https'
 Net::HTTP.version_1_2
 
 module OpenSocial
@@ -41,6 +42,7 @@ module OpenSocial
         require 'digest/md5'
         
         method = (opt.delete(:method) || :get).to_s.upcase
+        schema, port = opt.delete(:secure) ? ['https', 443] : ['http', 80]
         params = {
           :oauth_consumer_key => consumer_key,
           :oauth_nonce => Digest::MD5.hexdigest(rand.to_s),
@@ -52,10 +54,17 @@ module OpenSocial
         
         params[:oauth_token] = @auth[:oauth_token] unless batch_mode?
         
-        params[:oauth_signature] = CGI.escape(make_signature("http://#{api_host}#{url}", method, params.merge(opt)))
+        params[:oauth_signature] = CGI.escape(make_signature("#{schema}://#{api_host}#{url}", method, params.merge(opt)))
         
         params_str = params.sort_by{|k, v| k.to_s}.map{|key, value| "#{key}=\"#{value}\""}.join(",")
-        Net::HTTP.start(api_host, 80) do |http|
+        http = Net::HTTP.new(api_host, port)
+        if port == 443
+          http.use_ssl = true
+          http.ca_file = '/etc/pki/tls/cert.pem'
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.verify_depth = 5
+        end
+        http.start do |con|
           url += '?' + opt.to_query if opt != {}
           method_class = "Net::HTTP::#{method.downcase.camelize}".constantize
           req = method_class.new(url)
@@ -66,7 +75,7 @@ module OpenSocial
           end
           req['Authorization'] = "OAuth realm=\"\",#{params_str}"
           req['User-Agent'] = 'ruby-net-http/acts_as_opensocial'
-          res = http.request(req)
+          res = con.request(req)
         end
       end
       
@@ -75,6 +84,19 @@ module OpenSocial
         if res.code.to_i == 200
           JSON.parse(res.body)["entry"]
         end
+      end
+      
+      def friends(owner_id)
+        res = send_request("/people/#{owner_id}/@friends", owner_id)
+      end
+            
+      def activity(message, url)
+        path = '/activities/@me/@self/@app'
+        post_data = {
+          :title => message,
+          :url => url
+        }.to_json
+        res = send_request(path, @owner_id, {:method => :post}, post_data)
       end
       
       def oauth_token_secret
