@@ -28,12 +28,8 @@ class DummyPlatform < OpenSocial::Platform::AbstractPlatform
     text
   end
   
-  def update_text(text_id, text)
+  def update_text(key_id, text)
     text
-  end
-  
-  def delete_text(text_id)
-    ''
   end
   
   def activity(message, url)
