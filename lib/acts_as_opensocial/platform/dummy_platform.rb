@@ -18,6 +18,18 @@ class DummyPlatform < OpenSocial::Platform::AbstractPlatform
     true
   end
   
+  def friend_list(owner_id, only_user)
+    return @friends if @friends
+    @friends = []
+    1.upto 3 do |i|
+      @friends << {
+        :opensocial_owner_id => owner_id + i,
+        :nickname => "friend_#{i}"
+      }
+    end
+    @friends
+  end
+  
   def get_text(text_id)
     text_id.map do |text_id|
       {"textId" => text_id, "data" => text_id, "status" => 0}

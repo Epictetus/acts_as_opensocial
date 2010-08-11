@@ -104,7 +104,7 @@ module OpenSocial
         return friends unless res.code.to_i == 200
         json = JSON.parse(res.body)
         json['entry'].each do |friend|
-          friends >> {
+          friends << {
             :opensocial_owner_id => friend['id'],
             :nickname => friend['nickname']
           }
