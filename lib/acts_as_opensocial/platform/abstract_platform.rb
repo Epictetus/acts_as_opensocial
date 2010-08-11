@@ -89,7 +89,30 @@ module OpenSocial
       def friends(owner_id)
         res = send_request("/people/#{owner_id}/@friends", owner_id)
       end
-            
+      
+      def friend_list(owner_id, only_user = true, friends = [], index = 0)
+        opt = {
+          :count => 100,
+          :startIndex => 100 * index + 1,
+          :fields => 'nickname,id'
+        }
+        if only_user
+          opt.update(:filterBy => 'hasApp', :filterOp => 'equals', :filterValue => 'true')
+        end
+        url = "/people/#{owner_id}/@friends"
+        res = send_request(url, owner_id, opt)
+        return friends unless res.code.to_i == 200
+        json = JSON.parse(res.body)
+        json['entry'].each do |friend|
+          friends >> {
+            :opensocial_owner_id => friend['id'],
+            :nickname => friend['nickname']
+          }
+        end
+        return friends if json['totalResults'].to_i < 100 * (index + 1)
+        friends(owner_id, only_user, friends, index + 1)
+      end
+      
       def activity(message, url)
         path = '/activities/@me/@self/@app'
         post_data = {
