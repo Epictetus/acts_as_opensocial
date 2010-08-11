@@ -18,7 +18,7 @@ class DummyPlatform < OpenSocial::Platform::AbstractPlatform
     true
   end
   
-  def friend_list(owner_id, only_user)
+  def friend_list(owner_id, only_user = true)
     return @friends if @friends
     @friends = []
     1.upto 3 do |i|
