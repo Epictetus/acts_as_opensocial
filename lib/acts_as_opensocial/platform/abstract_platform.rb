@@ -80,14 +80,16 @@ module OpenSocial
       end
       
       def prof(owner_id)
-        res = send_request("/people/#{owner_id}/@self", owner_id)
+        res = send_request("/people/@me/@self", owner_id)
         if res.code.to_i == 200
-          JSON.parse(res.body)["entry"]
+          row_data = JSON.parse(res.body)["entry"]
+          row_data["id"] = row_data["id"].scan(/([0-9]+)/).last.first.to_i
+          return row_data.symbolize_keys
         end
       end
       
       def friends(owner_id)
-        res = send_request("/people/#{owner_id}/@friends", owner_id)
+        res = send_request("/people/@me/@friends", owner_id)
       end
       
       def friend_list(owner_id, only_user = true, friends = [], index = 0)
@@ -99,13 +101,14 @@ module OpenSocial
         if only_user
           opt.update(:filterBy => 'hasApp', :filterOp => 'equals', :filterValue => 'true')
         end
-        url = "/people/#{owner_id}/@friends"
+        url = "/people/@me/@friends"
         res = send_request(url, owner_id, opt)
         return friends unless res.code.to_i == 200
         json = JSON.parse(res.body)
         json['entry'].each do |friend|
           friends << {
-            :opensocial_owner_id => friend['id'],
+            :id => friend['id'].scan(/([0-9]+)/).last.first.to_i
+            :opensocial_owner_id => friend['id'].scan(/([0-9]+)/).last.first.to_i,
             :nickname => friend['nickname']
           }
         end
