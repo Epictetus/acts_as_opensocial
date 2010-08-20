@@ -108,9 +108,10 @@ module OpenSocial
         return friends unless res.code.to_i == 200
         json = JSON.parse(res.body)
         json['entry'].each do |friend|
+          friend = fix_userdata(friend)
           friends << {
-            :id => friend['id'].scan(/([0-9]+)/).last.first.to_i,
-            :opensocial_owner_id => friend['id'].scan(/([0-9]+)/).last.first.to_i,
+            :id => friend['id'],
+            :opensocial_owner_id => friend['id'],
             :nickname => friend['nickname']
           }
         end
