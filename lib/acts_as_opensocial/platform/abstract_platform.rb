@@ -23,6 +23,10 @@ module OpenSocial
       def consumer_key ; end
       def consumer_secret ; end
       
+      def fix_userdata(row_data)
+        row_data
+      end
+      
       def make_signature(uri, method, params)
         require 'openssl'
         require 'base64'
@@ -82,9 +86,7 @@ module OpenSocial
       def prof(owner_id)
         res = send_request("/people/@me/@self", owner_id)
         if res.code.to_i == 200
-          row_data = JSON.parse(res.body)["entry"]
-          row_data["id"] = row_data["id"].scan(/([0-9]+)/).last.first.to_i
-          return row_data.symbolize_keys
+          fix_userdata(JSON.parse(res.body)["entry"])
         end
       end
       
@@ -107,7 +109,7 @@ module OpenSocial
         json = JSON.parse(res.body)
         json['entry'].each do |friend|
           friends << {
-            :id => friend['id'].scan(/([0-9]+)/).last.first.to_i
+            :id => friend['id'].scan(/([0-9]+)/).last.first.to_i,
             :opensocial_owner_id => friend['id'].scan(/([0-9]+)/).last.first.to_i,
             :nickname => friend['nickname']
           }
