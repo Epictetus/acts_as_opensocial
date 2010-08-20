@@ -1,19 +1,42 @@
 ActsAsOpenSocial
 ================
-fix helpers for opensocial
-only for mixi_mobile now
+
+1. Helpers
+fix helpers using url for opensocial
 
 Example
 =======
 class ApplicationController < ActionController::Base
-    opensocial_filter :mixi_mobile
-    opensocial_filter true                  # = :mixi_mobile
+    opensocial_filter true                 
     opensocial_filter false                # revert normal
 
     before_filter :set_opensocial_mode
     def set_opensocial_mode
-         opensocial_filter true if RAILS_ENV == 'production'    # only for production environment
+        opensocial_filter true if RAILS_ENV == 'production'    # only for production environment
     end
 end
+
+2. Platform
+AbstractPlatform has common procedures to connect to platform 
+
+Example
+=======
+class SomePlatform < OpenSocial::Platform::AbstractPlatform
+  def consumer_key
+     'abcabc'
+  end
+  def secret_key
+     'xyzxyz'
+  end
+  def application_id
+      10000
+  end
+end
+
+@platform = SomePlatform.new
+opensocial_id = params[:opensocial_owner_id]
+@platform.prof(opensocial_id)
+
+
 
 Copyright (c) 2010 masarakki <masaki@hisme.net>, released under the MIT license
